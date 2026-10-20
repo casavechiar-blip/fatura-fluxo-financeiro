@@ -14,13 +14,126 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      cartoes: {
+        Row: {
+          banco: string | null
+          cor: string | null
+          created_at: string
+          id: string
+          limite: number | null
+          nome: string
+          user_id: string | null
+          vencimento: number
+        }
+        Insert: {
+          banco?: string | null
+          cor?: string | null
+          created_at?: string
+          id?: string
+          limite?: number | null
+          nome: string
+          user_id?: string | null
+          vencimento: number
+        }
+        Update: {
+          banco?: string | null
+          cor?: string | null
+          created_at?: string
+          id?: string
+          limite?: number | null
+          nome?: string
+          user_id?: string | null
+          vencimento?: number
+        }
+        Relationships: []
+      }
+      faturas: {
+        Row: {
+          cartao: string
+          created_at: string
+          id: string
+          mes: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          cartao: string
+          created_at?: string
+          id?: string
+          mes: string
+          user_id?: string
+          valor?: number
+        }
+        Update: {
+          cartao?: string
+          created_at?: string
+          id?: string
+          mes?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: []
+      }
+      movimentos: {
+        Row: {
+          categoria: string | null
+          created_at: string
+          data_compra: string | null
+          detalhamento: string | null
+          forma_pgto: string | null
+          formula: string | null
+          id: string
+          mes: string
+          movimento: string
+          ordem: number
+          responsavel: string | null
+          situacao: string | null
+          subcategoria: string | null
+          user_id: string | null
+          valor: number
+        }
+        Insert: {
+          categoria?: string | null
+          created_at?: string
+          data_compra?: string | null
+          detalhamento?: string | null
+          forma_pgto?: string | null
+          formula?: string | null
+          id?: string
+          mes: string
+          movimento: string
+          ordem?: number
+          responsavel?: string | null
+          situacao?: string | null
+          subcategoria?: string | null
+          user_id?: string | null
+          valor?: number
+        }
+        Update: {
+          categoria?: string | null
+          created_at?: string
+          data_compra?: string | null
+          detalhamento?: string | null
+          forma_pgto?: string | null
+          formula?: string | null
+          id?: string
+          mes?: string
+          movimento?: string
+          ordem?: number
+          responsavel?: string | null
+          situacao?: string | null
+          subcategoria?: string | null
+          user_id?: string | null
+          valor?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      claim_seed_data: { Args: never; Returns: number }
     }
     Enums: {
       [_ in never]: never
