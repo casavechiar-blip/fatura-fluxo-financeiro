@@ -22,8 +22,8 @@ describe("finanças", () => {
       mov({ forma_pgto: "Itau 17", valor: 999, mes: "2027-02-01" }),
     ];
     const [c] = conferirFaturas(movs, [{ cartao: "Itau 17", mes: "2027-01-01", valor: 160 }], ["Itau 17"], "2027-01-01");
-    expect(c.registrado).toBe(150);
-    expect(c.diferenca).toBe(10);
+    expect(c!.registrado).toBe(150);
+    expect(c!.diferenca).toBe(10);
   });
 
   it("saídas de terceiros não entram nas saídas próprias", () => {

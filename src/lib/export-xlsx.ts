@@ -6,7 +6,7 @@ const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 const serial = (iso: string) => {
-  const [y, m, d] = iso.split("-").map(Number);
+  const [y = 0, m = 1, d = 1] = iso.split("-").map(Number);
   return (Date.UTC(y, m - 1, d) - Date.UTC(1899, 11, 30)) / 86400000;
 };
 
@@ -56,7 +56,7 @@ export async function gerarPlanilha(movs: Movimento[]): Promise<Blob> {
   sheet = sheet
     .replace(/<sheetData>[\s\S]*<\/sheetData>/, `<sheetData>${header}${body}</sheetData>`)
     .replace(/<dimension ref="[^"]*"\/>/, `<dimension ref="A1:I${last}"/>`)
-    .replace(/sqref="([^"]*)"/g, (_, refs: string) =>
+    .replace(/sqref="([^"]*)"/g, (_: string, refs: string) =>
       `sqref="${refs.replace(/([A-I])2:\1(\d+)/g, (__, col: string, end: string) => `${col}2:${col}${Math.max(Number(end), last)}`)}"`,
     );
   zip.file(sheetPath, sheet);
@@ -72,7 +72,7 @@ export async function gerarPlanilha(movs: Movimento[]): Promise<Blob> {
   const ct = await zip.file("[Content_Types].xml")!.async("string");
   zip.file("[Content_Types].xml", ct.replace(/<Override PartName="\/xl\/calcChain\.xml"[^>]*\/>/, ""));
   const wb = await zip.file("xl/workbook.xml")!.async("string");
-  zip.file("xl/workbook.xml", wb.replace(/<calcPr([^>]*?)\/>/, (_, a: string) => `<calcPr${a.replace(/ fullCalcOnLoad="[^"]*"/, "")} fullCalcOnLoad="1"/>`));
+  zip.file("xl/workbook.xml", wb.replace(/<calcPr([^>]*?)\/>/, (_: string, a: string) => `<calcPr${a.replace(/ fullCalcOnLoad="[^"]*"/, "")} fullCalcOnLoad="1"/>`));
   const pcPath = "xl/pivotCache/pivotCacheDefinition1.xml";
   const pc = zip.file(pcPath);
   if (pc) {

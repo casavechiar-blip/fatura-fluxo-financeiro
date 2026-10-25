@@ -49,7 +49,7 @@ export function LancamentoForm({ onDone, editar }: { onDone: () => void; editar?
 
   const cats = CATEGORIAS[tipo];
   useEffect(() => {
-    if (!editar && !cats[categoria]) { setCategoria(Object.keys(cats)[0]); setSub(""); }
+    if (!editar && !cats[categoria]) { setCategoria(Object.keys(cats)[0] ?? ""); setSub(""); }
   }, [tipo]); // eslint-disable-line react-hooks/exhaustive-deps
   const responsaveis = useMemo(
     () => Array.from(new Set([PROPRIO, ...movs.map((m) => m.responsavel).filter(Boolean) as string[]])),
@@ -59,7 +59,7 @@ export function LancamentoForm({ onDone, editar }: { onDone: () => void; editar?
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     const total = Number(valor.replace(",", "."));
-    if (!isFinite(total) || total === 0) return toast.error("Informe um valor válido");
+    if (!isFinite(total) || total === 0) { toast.error("Informe um valor válido"); return; }
     const base = {
       mes: `${mes}-01`, movimento: tipo, categoria, subcategoria: sub || null, detalhamento: desc || null,
       forma_pgto: forma || null, responsavel: resp || PROPRIO, situacao,

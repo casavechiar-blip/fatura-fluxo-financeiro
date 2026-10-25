@@ -38,12 +38,12 @@ export const fmtCompact = (v: number) =>
 
 export const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 export const mesLabel = (iso: string) => {
-  const [y, m] = iso.split("-").map(Number);
+  const [y = 0, m = 1] = iso.split("-").map(Number);
   return `${MESES[m - 1]}/${String(y).slice(2)}`;
 };
 export const mesKey = (iso: string) => iso.slice(0, 7);
 export const addMonths = (iso: string, n: number) => {
-  const [y, m] = iso.split("-").map(Number);
+  const [y = 0, m = 1] = iso.split("-").map(Number);
   const d = new Date(Date.UTC(y, m - 1 + n, 1));
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-01`;
 };
@@ -60,7 +60,7 @@ export function gerarParcelas(base: NovoMovimento & { mes: string }, total: numb
     ...base,
     mes: addMonths(base.mes, i),
     valor: i === n - 1 ? Math.round((total - valor * (n - 1)) * 100) / 100 : valor,
-    detalhamento: n > 1 ? `${base.detalhamento ?? ""} ${i + 1}/${n}`.trim() : base.detalhamento,
+    detalhamento: n > 1 ? `${base.detalhamento ?? ""} ${i + 1}/${n}`.trim() : (base.detalhamento ?? null),
   }));
 }
 
