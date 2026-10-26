@@ -71,6 +71,41 @@ export function useAtualizarMovimento() {
   });
 }
 
+export function useAtualizarSerieParcelada() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      atualizar,
+      deletarIds = [],
+      inserir = [],
+    }: {
+      atualizar: (Partial<Movimento> & { id: string })[];
+      deletarIds?: string[];
+      inserir?: NovoMovimento[];
+    }) => {
+      // 1. Atualizar registros existentes
+      for (const item of atualizar) {
+        const { id, ...patch } = item;
+        const { error } = await supabase.from("movimentos").update(patch).eq("id", id);
+        if (error) throw error;
+      }
+      // 2. Deletar parcelas excedentes se quantidade diminuiu
+      if (deletarIds.length > 0) {
+        const { error } = await supabase.from("movimentos").delete().in("id", deletarIds);
+        if (error) throw error;
+      }
+      // 3. Inserir novas parcelas se quantidade aumentou
+      if (inserir.length > 0) {
+        const { data: max } = await supabase.from("movimentos").select("ordem").order("ordem", { ascending: false }).limit(1);
+        let ordem = (max?.[0]?.ordem ?? 0) + 1;
+        const { error } = await supabase.from("movimentos").insert(inserir.map((r) => ({ ...r, ordem: r.ordem ?? ordem++ })));
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["movimentos"] }),
+  });
+}
+
 export function useExcluirMovimento() {
   const qc = useQueryClient();
   return useMutation({

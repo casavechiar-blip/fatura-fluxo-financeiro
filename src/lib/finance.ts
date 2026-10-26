@@ -52,6 +52,18 @@ export const isSaida = (m: Pick<Movimento, "movimento">) => m.movimento.toLowerC
 export const isProprio = (m: Pick<Movimento, "responsavel">) =>
   (m.responsavel ?? PROPRIO).toUpperCase() === PROPRIO;
 
+/** Helper to parse parcel pattern like "Tênis 2/10" -> { baseDesc: "Tênis", atual: 2, total: 10 } */
+export function parseParcelaInfo(detalhamento?: string | null): { baseDesc: string; atual: number; total: number } | null {
+  if (!detalhamento) return null;
+  const match = detalhamento.match(/^(.*?)(?:\s+(\d+)\/(\d+))$/);
+  if (!match) return null;
+  const baseDesc = match[1]?.trim() ?? "";
+  const atual = Number(match[2]);
+  const total = Number(match[3]);
+  if (!isFinite(atual) || !isFinite(total) || total < 2 || atual < 1 || atual > total) return null;
+  return { baseDesc, atual, total };
+}
+
 /** Splits a purchase into N monthly installments, labelled "desc i/N". */
 export function gerarParcelas(base: NovoMovimento & { mes: string }, total: number, parcelas: number): NovoMovimento[] {
   const n = Math.max(1, Math.floor(parcelas));
