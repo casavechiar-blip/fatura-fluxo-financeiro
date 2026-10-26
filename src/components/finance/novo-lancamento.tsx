@@ -119,8 +119,50 @@ export function LancamentoForm({ onDone, editar }: { onDone: () => void; editar?
         </Select>
       </Field>
       <Field label="Responsável">
-        <Input list="responsaveis" value={resp} onChange={(e) => setResp(e.target.value)} />
-        <datalist id="responsaveis">{responsaveis.map((r) => <option key={r} value={r} />)}</datalist>
+        {responsaveis.includes(resp) ? (
+          <Select
+            value={resp}
+            onValueChange={(v) => {
+              if (v === "__novo__") {
+                setResp("");
+              } else {
+                setResp(v);
+              }
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione o responsável" />
+            </SelectTrigger>
+            <SelectContent>
+              {responsaveis.map((r) => (
+                <SelectItem key={r} value={r}>
+                  {r}
+                </SelectItem>
+              ))}
+              <SelectItem value="__novo__" className="font-medium text-primary">
+                + Inserir novo responsável...
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        ) : (
+          <div className="flex gap-1.5">
+            <Input
+              autoFocus
+              value={resp}
+              onChange={(e) => setResp(e.target.value)}
+              placeholder="Nome do novo responsável"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setResp(PROPRIO)}
+              title="Voltar para a lista"
+            >
+              Cancelar
+            </Button>
+          </div>
+        )}
       </Field>
       {!editar && (
         <Field label="Parcelas">
