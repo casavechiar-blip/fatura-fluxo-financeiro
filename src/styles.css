@@ -5,9 +5,10 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Design system: "Monochrome / Grayscale High-Contrast"
- * Pure neutral grayscale palette with crisp contrast, clean borders,
- * and high legibility.
+ * Design system: "Power BI Executive Dark"
+ * Slate-graphite canvas, refined cards with sharp borders,
+ * Power BI solar amber primary, emerald teal for income,
+ * modern coral for expense, and rich multi-hue BI chart palette.
  * All colors in oklch. Register new tokens in @theme inline.
  */
 
@@ -61,51 +62,51 @@
 }
 
 :root {
-  --radius: 0.85rem;
-  --background: oklch(0.11 0 0);
-  --foreground: oklch(0.98 0 0);
-  --surface: oklch(0.15 0 0);
-  --card: oklch(0.18 0 0);
-  --card-foreground: oklch(0.98 0 0);
-  --popover: oklch(0.19 0 0);
-  --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.96 0 0);
-  --primary-foreground: oklch(0.10 0 0);
-  --secondary: oklch(0.24 0 0);
-  --secondary-foreground: oklch(0.96 0 0);
-  --muted: oklch(0.22 0 0);
-  --muted-foreground: oklch(0.72 0 0);
-  --accent: oklch(0.26 0 0);
-  --accent-foreground: oklch(0.98 0 0);
+  --radius: 0.75rem;
+  --background: oklch(0.14 0.02 245);
+  --foreground: oklch(0.97 0.005 240);
+  --surface: oklch(0.18 0.024 245);
+  --card: oklch(0.20 0.026 245);
+  --card-foreground: oklch(0.97 0.005 240);
+  --popover: oklch(0.22 0.028 245);
+  --popover-foreground: oklch(0.97 0.005 240);
+  --primary: oklch(0.82 0.17 78);
+  --primary-foreground: oklch(0.15 0.03 245);
+  --secondary: oklch(0.25 0.028 245);
+  --secondary-foreground: oklch(0.95 0.01 240);
+  --muted: oklch(0.23 0.025 245);
+  --muted-foreground: oklch(0.72 0.02 240);
+  --accent: oklch(0.26 0.032 235);
+  --accent-foreground: oklch(0.98 0.005 240);
   --destructive: oklch(0.65 0.22 25);
   --destructive-foreground: oklch(0.99 0 0);
-  --income: oklch(0.95 0 0);
-  --expense: oklch(0.52 0 0);
-  --warning: oklch(0.75 0 0);
-  --border: oklch(0.32 0 0);
-  --input: oklch(0.30 0 0);
-  --ring: oklch(0.92 0 0);
-  --chart-1: oklch(0.98 0 0);
-  --chart-2: oklch(0.82 0 0);
-  --chart-3: oklch(0.68 0 0);
-  --chart-4: oklch(0.54 0 0);
-  --chart-5: oklch(0.40 0 0);
-  --chart-6: oklch(0.88 0 0);
-  --chart-7: oklch(0.62 0 0);
-  --sidebar: oklch(0.08 0 0);
-  --sidebar-foreground: oklch(0.92 0 0);
-  --sidebar-primary: oklch(0.98 0 0);
-  --sidebar-primary-foreground: oklch(0.10 0 0);
-  --sidebar-accent: oklch(0.18 0 0);
-  --sidebar-accent-foreground: oklch(0.99 0 0);
-  --sidebar-border: oklch(0.25 0 0);
-  --sidebar-ring: oklch(0.92 0 0);
+  --income: oklch(0.76 0.16 160);
+  --expense: oklch(0.68 0.20 22);
+  --warning: oklch(0.82 0.16 75);
+  --border: oklch(0.30 0.028 245);
+  --input: oklch(0.28 0.03 245);
+  --ring: oklch(0.82 0.17 78);
+  --chart-1: oklch(0.82 0.17 78);
+  --chart-2: oklch(0.76 0.16 160);
+  --chart-3: oklch(0.72 0.15 230);
+  --chart-4: oklch(0.68 0.20 22);
+  --chart-5: oklch(0.72 0.16 300);
+  --chart-6: oklch(0.78 0.14 190);
+  --chart-7: oklch(0.75 0.15 110);
+  --sidebar: oklch(0.11 0.02 245);
+  --sidebar-foreground: oklch(0.90 0.01 240);
+  --sidebar-primary: oklch(0.82 0.17 78);
+  --sidebar-primary-foreground: oklch(0.15 0.03 245);
+  --sidebar-accent: oklch(0.19 0.026 245);
+  --sidebar-accent-foreground: oklch(0.98 0.005 240);
+  --sidebar-border: oklch(0.24 0.025 245);
+  --sidebar-ring: oklch(0.82 0.17 78);
 
-  --gradient-hero: radial-gradient(1200px 500px at 15% -10%, oklch(0.20 0 0 / 45%), transparent 60%),
-    radial-gradient(900px 400px at 100% 0%, oklch(0.16 0 0 / 35%), transparent 60%);
-  --gradient-gold: linear-gradient(135deg, oklch(0.98 0 0), oklch(0.65 0 0));
-  --shadow-card: 0 1px 0 0 oklch(1 0 0 / 8%) inset, 0 20px 40px -24px oklch(0 0 0 / 80%);
-  --shadow-glow: 0 10px 40px -10px oklch(1 0 0 / 18%);
+  --gradient-hero: radial-gradient(1200px 500px at 15% -10%, color-mix(in oklab, var(--chart-3) 15%, transparent), transparent 60%),
+    radial-gradient(900px 400px at 100% 0%, color-mix(in oklab, var(--primary) 12%, transparent), transparent 60%);
+  --gradient-gold: linear-gradient(135deg, var(--primary), oklch(0.74 0.18 55));
+  --shadow-card: 0 1px 0 0 color-mix(in oklab, var(--foreground) 5%, transparent) inset, 0 16px 36px -20px oklch(0 0 0 / 65%);
+  --shadow-glow: 0 8px 30px -8px color-mix(in oklab, var(--primary) 35%, transparent);
 }
 
 @layer base {
