@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { ArrowDownRight, ArrowUpRight, PiggyBank, Users } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Cell, Legend, Line, ComposedChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useMovimentos } from "@/hooks/use-finance";
+import { useGlobalFilters } from "@/hooks/use-global-filters";
 import { catLabel, fmtBRL, fmtCompact, isProprio, isSaida, mesKey, mesLabel, resumoMes } from "@/lib/finance";
 import { CHART_COLORS, Kpi, MesSelect, Panel } from "@/components/finance/ui";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -23,8 +24,9 @@ const tooltipStyle = { background: "var(--popover)", border: "1px solid var(--bo
 
 function Painel() {
   const { data: movs, isLoading } = useMovimentos();
+  const { filtros, setMes } = useGlobalFilters();
   const meses = useMemo(() => Array.from(new Set((movs ?? []).map((m) => m.mes.slice(0, 10)))).sort(), [movs]);
-  const [mes, setMes] = useState("todos");
+  const mes = filtros.mes;
   const sel = mes === "todos" ? null : mes;
 
   const dados = useMemo(() => {

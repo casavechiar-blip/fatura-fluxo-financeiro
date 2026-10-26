@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { NovoLancamentoButton } from "@/components/finance/novo-lancamento";
 import { ExportarButton } from "@/components/finance/exportar-button";
+import { FilterProvider } from "@/hooks/use-global-filters";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -71,7 +72,9 @@ function Shell() {
           </div>
         </header>
         <main className="flex-1 px-4 py-6 md:px-8">
-          <Outlet />
+          <FilterProvider>
+            <Outlet />
+          </FilterProvider>
         </main>
       </div>
     </div>

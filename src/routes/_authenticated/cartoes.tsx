@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, CreditCard, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useCartoes, useExcluirCartao, useFaturas, useMovimentos, useSalvarCartao, useSalvarFatura } from "@/hooks/use-finance";
+import { useGlobalFilters } from "@/hooks/use-global-filters";
 import { conferirFaturas, fmtBRL, mesLabel } from "@/lib/finance";
 import { MesSelect, Panel } from "@/components/finance/ui";
 import { Input } from "@/components/ui/input";
@@ -26,12 +27,12 @@ function Cartoes() {
   const { data: movs = [] } = useMovimentos();
   const { data: cartoes = [] } = useCartoes();
   const { data: faturas = [] } = useFaturas();
+  const { filtros, setMes } = useGlobalFilters();
   const salvarFatura = useSalvarFatura();
   const salvarCartao = useSalvarCartao();
   const excluirCartao = useExcluirCartao();
   const meses = useMemo(() => Array.from(new Set(movs.map((m) => m.mes))).sort(), [movs]);
-  const [mes, setMes] = useState<string>("");
-  const mesSel = mes || meses[0] || "";
+  const mesSel = (filtros.mes && filtros.mes !== "todos") ? filtros.mes : (meses[0] || "");
   const conf = mesSel ? conferirFaturas(movs, faturas, cartoes.map((c) => c.nome), mesSel) : [];
   const [novo, setNovo] = useState({ nome: "", vencimento: "10" });
 

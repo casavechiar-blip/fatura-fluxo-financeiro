@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { Pencil, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useExcluirMovimento, useMovimentos } from "@/hooks/use-finance";
+import { useGlobalFilters } from "@/hooks/use-global-filters";
 import { catLabel, fmtBRL, isSaida, mesKey, mesLabel, type Movimento } from "@/lib/finance";
 import { MesSelect, Panel } from "@/components/finance/ui";
 import { Input } from "@/components/ui/input";
@@ -27,10 +28,11 @@ export const Route = createFileRoute("/_authenticated/lancamentos")({
 function Lancamentos() {
   const { data: movs = [] } = useMovimentos();
   const excluir = useExcluirMovimento();
-  const [mes, setMes] = useState("todos");
-  const [forma, setForma] = useState("todas");
-  const [responsavel, setResponsavel] = useState("todos");
-  const [q, setQ] = useState("");
+  const { filtros, setMes, setForma, setResponsavel, setBusca } = useGlobalFilters();
+  const mes = filtros.mes;
+  const forma = filtros.forma;
+  const responsavel = filtros.responsavel;
+  const q = filtros.busca;
   const [editar, setEditar] = useState<Movimento | null>(null);
   const meses = useMemo(() => Array.from(new Set(movs.map((m) => m.mes))).sort(), [movs]);
   const formas = useMemo(() => Array.from(new Set(movs.map((m) => m.forma_pgto).filter(Boolean) as string[])).sort(), [movs]);
@@ -56,7 +58,7 @@ function Lancamentos() {
           <div className="flex flex-wrap gap-2">
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-              <Input className="w-48 pl-8" placeholder="Buscar…" value={q} onChange={(e) => setQ(e.target.value)} />
+              <Input className="w-48 pl-8" placeholder="Buscar…" value={q} onChange={(e) => setBusca(e.target.value)} />
             </div>
             <MesSelect meses={meses} value={mes} onChange={setMes} />
             <Select value={forma} onValueChange={setForma}>
