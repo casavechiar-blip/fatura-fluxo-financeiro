@@ -29,14 +29,17 @@ function Lancamentos() {
   const excluir = useExcluirMovimento();
   const [mes, setMes] = useState("todos");
   const [forma, setForma] = useState("todas");
+  const [responsavel, setResponsavel] = useState("todos");
   const [q, setQ] = useState("");
   const [editar, setEditar] = useState<Movimento | null>(null);
   const meses = useMemo(() => Array.from(new Set(movs.map((m) => m.mes))).sort(), [movs]);
   const formas = useMemo(() => Array.from(new Set(movs.map((m) => m.forma_pgto).filter(Boolean) as string[])).sort(), [movs]);
+  const responsaveis = useMemo(() => Array.from(new Set(movs.map((m) => m.responsavel).filter(Boolean) as string[])).sort(), [movs]);
 
   const lista = movs.filter((m) =>
     (mes === "todos" || mesKey(m.mes) === mesKey(mes)) &&
     (forma === "todas" || m.forma_pgto === forma) &&
+    (responsavel === "todos" || m.responsavel === responsavel) &&
     (!q || [m.detalhamento, m.subcategoria, m.categoria, m.responsavel].join(" ").toLowerCase().includes(q.toLowerCase())),
   );
   const total = lista.reduce((s, m) => s + (isSaida(m) ? -1 : 1) * Number(m.valor), 0);
@@ -57,10 +60,17 @@ function Lancamentos() {
             </div>
             <MesSelect meses={meses} value={mes} onChange={setMes} />
             <Select value={forma} onValueChange={setForma}>
-              <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-48"><SelectValue placeholder="Forma de pagamento" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="todas">Todas as formas</SelectItem>
                 {formas.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={responsavel} onValueChange={setResponsavel}>
+              <SelectTrigger className="w-44"><SelectValue placeholder="Responsável" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos os responsáveis</SelectItem>
+                {responsaveis.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
