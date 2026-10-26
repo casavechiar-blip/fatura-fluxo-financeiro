@@ -5,8 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Design system: "Painel" — dark BI dashboard look (deep navy canvas,
- * gold primary like classic BI tools, teal/coral for income/expense).
+ * Design system: "Monochrome / Grayscale High-Contrast"
+ * Pure neutral grayscale palette with crisp contrast, clean borders,
+ * and high legibility.
  * All colors in oklch. Register new tokens in @theme inline.
  */
 
@@ -61,50 +62,50 @@
 
 :root {
   --radius: 0.85rem;
-  --background: oklch(0.15 0.025 262);
-  --foreground: oklch(0.96 0.01 250);
-  --surface: oklch(0.18 0.03 262);
-  --card: oklch(0.205 0.032 262);
-  --card-foreground: oklch(0.96 0.01 250);
-  --popover: oklch(0.22 0.035 262);
-  --popover-foreground: oklch(0.96 0.01 250);
-  --primary: oklch(0.84 0.16 86);
-  --primary-foreground: oklch(0.18 0.03 262);
-  --secondary: oklch(0.27 0.035 262);
-  --secondary-foreground: oklch(0.96 0.01 250);
-  --muted: oklch(0.25 0.03 262);
-  --muted-foreground: oklch(0.7 0.03 255);
-  --accent: oklch(0.29 0.045 230);
-  --accent-foreground: oklch(0.96 0.01 250);
-  --destructive: oklch(0.66 0.2 22);
-  --destructive-foreground: oklch(0.98 0 0);
-  --income: oklch(0.78 0.15 165);
-  --expense: oklch(0.7 0.18 25);
-  --warning: oklch(0.8 0.15 70);
-  --border: oklch(0.3 0.03 262);
-  --input: oklch(0.32 0.035 262);
-  --ring: oklch(0.84 0.16 86);
-  --chart-1: oklch(0.84 0.16 86);
-  --chart-2: oklch(0.78 0.15 165);
-  --chart-3: oklch(0.7 0.16 250);
-  --chart-4: oklch(0.7 0.18 25);
-  --chart-5: oklch(0.72 0.17 320);
-  --chart-6: oklch(0.8 0.12 200);
-  --chart-7: oklch(0.75 0.14 130);
-  --sidebar: oklch(0.13 0.025 262);
-  --sidebar-foreground: oklch(0.9 0.01 250);
-  --sidebar-primary: oklch(0.84 0.16 86);
-  --sidebar-primary-foreground: oklch(0.18 0.03 262);
-  --sidebar-accent: oklch(0.22 0.035 262);
-  --sidebar-accent-foreground: oklch(0.96 0.01 250);
-  --sidebar-border: oklch(0.25 0.03 262);
-  --sidebar-ring: oklch(0.84 0.16 86);
+  --background: oklch(0.11 0 0);
+  --foreground: oklch(0.98 0 0);
+  --surface: oklch(0.15 0 0);
+  --card: oklch(0.18 0 0);
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.19 0 0);
+  --popover-foreground: oklch(0.98 0 0);
+  --primary: oklch(0.96 0 0);
+  --primary-foreground: oklch(0.10 0 0);
+  --secondary: oklch(0.24 0 0);
+  --secondary-foreground: oklch(0.96 0 0);
+  --muted: oklch(0.22 0 0);
+  --muted-foreground: oklch(0.72 0 0);
+  --accent: oklch(0.26 0 0);
+  --accent-foreground: oklch(0.98 0 0);
+  --destructive: oklch(0.65 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --income: oklch(0.95 0 0);
+  --expense: oklch(0.52 0 0);
+  --warning: oklch(0.75 0 0);
+  --border: oklch(0.32 0 0);
+  --input: oklch(0.30 0 0);
+  --ring: oklch(0.92 0 0);
+  --chart-1: oklch(0.98 0 0);
+  --chart-2: oklch(0.82 0 0);
+  --chart-3: oklch(0.68 0 0);
+  --chart-4: oklch(0.54 0 0);
+  --chart-5: oklch(0.40 0 0);
+  --chart-6: oklch(0.88 0 0);
+  --chart-7: oklch(0.62 0 0);
+  --sidebar: oklch(0.08 0 0);
+  --sidebar-foreground: oklch(0.92 0 0);
+  --sidebar-primary: oklch(0.98 0 0);
+  --sidebar-primary-foreground: oklch(0.10 0 0);
+  --sidebar-accent: oklch(0.18 0 0);
+  --sidebar-accent-foreground: oklch(0.99 0 0);
+  --sidebar-border: oklch(0.25 0 0);
+  --sidebar-ring: oklch(0.92 0 0);
 
-  --gradient-hero: radial-gradient(1200px 500px at 10% -10%, color-mix(in oklab, var(--chart-3) 22%, transparent), transparent 60%),
-    radial-gradient(900px 400px at 100% 0%, color-mix(in oklab, var(--primary) 14%, transparent), transparent 60%);
-  --gradient-gold: linear-gradient(135deg, var(--primary), oklch(0.75 0.17 60));
-  --shadow-card: 0 1px 0 0 color-mix(in oklab, var(--foreground) 6%, transparent) inset, 0 20px 40px -24px oklch(0 0 0 / 60%);
-  --shadow-glow: 0 10px 40px -10px color-mix(in oklab, var(--primary) 45%, transparent);
+  --gradient-hero: radial-gradient(1200px 500px at 15% -10%, oklch(0.20 0 0 / 45%), transparent 60%),
+    radial-gradient(900px 400px at 100% 0%, oklch(0.16 0 0 / 35%), transparent 60%);
+  --gradient-gold: linear-gradient(135deg, oklch(0.98 0 0), oklch(0.65 0 0));
+  --shadow-card: 0 1px 0 0 oklch(1 0 0 / 8%) inset, 0 20px 40px -24px oklch(0 0 0 / 80%);
+  --shadow-glow: 0 10px 40px -10px oklch(1 0 0 / 18%);
 }
 
 @layer base {
