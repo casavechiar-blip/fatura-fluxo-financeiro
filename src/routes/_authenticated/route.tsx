@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
-import { CreditCard, LayoutDashboard, ListOrdered, LogOut, Wallet } from "lucide-react";
+import { ArrowLeftRight, CreditCard, LayoutDashboard, ListOrdered, LogOut, Wallet } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { NovoLancamentoButton } from "@/components/finance/novo-lancamento";
@@ -20,6 +20,7 @@ const NAV = [
   { to: "/painel", label: "Painel", icon: LayoutDashboard },
   { to: "/lancamentos", label: "Lançamentos", icon: ListOrdered },
   { to: "/cartoes", label: "Cartões e faturas", icon: CreditCard },
+  { to: "/fluxo-de-caixa", label: "Fluxo de caixa", icon: ArrowLeftRight },
 ] as const;
 
 function Shell() {

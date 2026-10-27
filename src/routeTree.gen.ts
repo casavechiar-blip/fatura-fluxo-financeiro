@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedCartoesRouteImport } from './routes/_authenticated/cartoes'
+import { Route as AuthenticatedFluxoDeCaixaRouteImport } from './routes/_authenticated/fluxo-de-caixa'
 import { Route as AuthenticatedLancamentosRouteImport } from './routes/_authenticated/lancamentos'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 
@@ -35,6 +36,12 @@ const AuthenticatedCartoesRoute = AuthenticatedCartoesRouteImport.update({
   path: '/cartoes',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedFluxoDeCaixaRoute =
+  AuthenticatedFluxoDeCaixaRouteImport.update({
+    id: '/fluxo-de-caixa',
+    path: '/fluxo-de-caixa',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedLancamentosRoute =
   AuthenticatedLancamentosRouteImport.update({
     id: '/lancamentos',
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/cartoes': typeof AuthenticatedCartoesRoute
+  '/fluxo-de-caixa': typeof AuthenticatedFluxoDeCaixaRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
   '/painel': typeof AuthenticatedPainelRoute
 }
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/cartoes': typeof AuthenticatedCartoesRoute
+  '/fluxo-de-caixa': typeof AuthenticatedFluxoDeCaixaRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
   '/painel': typeof AuthenticatedPainelRoute
 }
@@ -67,20 +76,24 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/cartoes': typeof AuthenticatedCartoesRoute
+  '/_authenticated/fluxo-de-caixa': typeof AuthenticatedFluxoDeCaixaRoute
   '/_authenticated/lancamentos': typeof AuthenticatedLancamentosRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/cartoes' | '/lancamentos' | '/painel'
+  fullPaths:
+    '/' | '/auth' | '/cartoes' | '/fluxo-de-caixa' | '/lancamentos' | '/painel'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/cartoes' | '/lancamentos' | '/painel'
+  to:
+    '/' | '/auth' | '/cartoes' | '/fluxo-de-caixa' | '/lancamentos' | '/painel'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/cartoes'
+    | '/_authenticated/fluxo-de-caixa'
     | '/_authenticated/lancamentos'
     | '/_authenticated/painel'
   fileRoutesById: FileRoutesById
@@ -121,6 +134,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCartoesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/fluxo-de-caixa': {
+      id: '/_authenticated/fluxo-de-caixa'
+      path: '/fluxo-de-caixa'
+      fullPath: '/fluxo-de-caixa'
+      preLoaderRoute: typeof AuthenticatedFluxoDeCaixaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/lancamentos': {
       id: '/_authenticated/lancamentos'
       path: '/lancamentos'
@@ -140,12 +160,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCartoesRoute: typeof AuthenticatedCartoesRoute
+  AuthenticatedFluxoDeCaixaRoute: typeof AuthenticatedFluxoDeCaixaRoute
   AuthenticatedLancamentosRoute: typeof AuthenticatedLancamentosRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCartoesRoute: AuthenticatedCartoesRoute,
+  AuthenticatedFluxoDeCaixaRoute: AuthenticatedFluxoDeCaixaRoute,
   AuthenticatedLancamentosRoute: AuthenticatedLancamentosRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
 }
