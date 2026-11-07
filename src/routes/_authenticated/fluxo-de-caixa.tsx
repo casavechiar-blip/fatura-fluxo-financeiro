@@ -79,7 +79,7 @@ const tooltipStyle = {
 function FluxoDeCaixa() {
   const { data: movs, isLoading } = useMovimentos();
   const { filtros, setMes } = useGlobalFilters();
-  const { budgets, salvarBudget, excluirBudget } = useBudgets();
+  const { budgets, salvarBudget, excluirBudget, alternarFechamentoMes } = useBudgets();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [budgetEditando, setBudgetEditando] = useState<BudgetConfig | null>(null);
@@ -87,6 +87,7 @@ function FluxoDeCaixa() {
   const meses = useMemo(() => Array.from(new Set((movs ?? []).map((m) => m.mes.slice(0, 10)))).sort(), [movs]);
   const mes = filtros.mes;
   const sel = mes === "todos" ? null : mes;
+  const mesAtivoChave = sel ? mesKey(sel) : (meses[0] ? mesKey(meses[0]) : "");
 
   // Cálculo por mês com incorporação do Budget como projeção de gasto mínimo/realizado
   const dados = useMemo(() => {
@@ -95,7 +96,7 @@ function FluxoDeCaixa() {
 
     let acumulador = 0;
     const mensal = meses.map((m) => {
-      const r = resumoComBudgets(all, m, budgets, 1);
+      const r = resumoComBudgets(all, m, budgets, [m]);
       acumulador += r.saldo;
       return {
         mes: mesLabel(m),
@@ -109,7 +110,7 @@ function FluxoDeCaixa() {
 
     let saldoAcumuladoSelecionado = 0;
     for (const m of meses) {
-      const r = resumoComBudgets(all, m, budgets, 1);
+      const r = resumoComBudgets(all, m, budgets, [m]);
       saldoAcumuladoSelecionado += r.saldo;
       if (sel && mesKey(m) === mesKey(sel)) break;
     }
@@ -121,6 +122,7 @@ function FluxoDeCaixa() {
         .filter((m) => isSaida(m) && isProprio(m) && m.categoria === b.categoria && m.subcategoria === b.subcategoria)
         .reduce((sum, m) => sum + Number(m.valor), 0);
 
+      const isFechadoNoMes = sel ? (b.mesesFechados ?? []).includes(mesKey(sel)) : false;
       const teto = b.valorMensal * mesesMultiplicador;
       const percentual = teto > 0 ? (gastoReal / teto) * 100 : 0;
       const ultrapassou = gastoReal > teto;
@@ -135,11 +137,12 @@ function FluxoDeCaixa() {
         ultrapassou,
         restante,
         diferencaEstouro,
+        isFechadoNoMes,
       };
     });
 
     return {
-      resumo: resumoComBudgets(all, sel, budgets, meses.length),
+      resumo: resumoComBudgets(all, sel, budgets, meses),
       saldoAcumulado: sel ? saldoAcumuladoSelecionado : acumulador,
       mensal,
       statusBudgets,
@@ -321,20 +324,59 @@ function FluxoDeCaixa() {
                   </div>
                 </div>
 
-                {/* Indicador de Status / Alerta */}
-                <div className="mt-4 flex items-center justify-between pt-2 border-t border-border/40 text-xs">
-                  {b.ultrapassou ? (
-                    <span className="flex items-center gap-1 font-semibold text-destructive">
-                      <AlertTriangle className="size-3.5" /> Ultrapassou em {fmtBRL(b.diferencaEstouro)} ({b.percentual.toFixed(0)}%)
+                {/* Indicador de Status / Alerta e Opção de Fechar Mês */}
+                <div className="mt-4 flex flex-col gap-2 pt-2 border-t border-border/40 text-xs">
+                  <div className="flex items-center justify-between">
+                    {b.ultrapassou ? (
+                      <span className="flex items-center gap-1 font-semibold text-destructive">
+                        <AlertTriangle className="size-3.5" /> Ultrapassou em {fmtBRL(b.diferencaEstouro)} ({b.percentual.toFixed(0)}%)
+                      </span>
+                    ) : b.isFechadoNoMes ? (
+                      <span className="flex items-center gap-1 font-medium text-cyan-400">
+                        <CheckCircle2 className="size-3.5" /> Mês encerrado (apenas gasto real contabilizado)
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 font-medium text-emerald-400">
+                        <CheckCircle2 className="size-3.5" /> Restam {fmtBRL(b.restante)} ({(100 - b.percentual).toFixed(0)}% livre)
+                      </span>
+                    )}
+                    <span className="text-muted-foreground tabular-nums">
+                      {b.percentual.toFixed(1)}% do teto
                     </span>
-                  ) : (
-                    <span className="flex items-center gap-1 font-medium text-emerald-400">
-                      <CheckCircle2 className="size-3.5" /> Restam {fmtBRL(b.restante)} ({ (100 - b.percentual).toFixed(0) }% livre)
+                  </div>
+
+                  {/* Ação para Desconsiderar a sobra / encerrar o mês */}
+                  {sel && !b.ultrapassou && b.restante > 0 && (
+                    <div className="flex items-center justify-between bg-muted/40 px-2.5 py-1.5 rounded-lg border border-border/60">
+                      <span className="text-muted-foreground text-[11px]">
+                        {b.isFechadoNoMes
+                          ? `Sobra de ${fmtBRL(b.restante)} ignorada neste mês`
+                          : `Sobra de ${fmtBRL(b.restante)} ainda reservada`}
+                      </span>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant={b.isFechadoNoMes ? "outline" : "secondary"}
+                        className="h-6 text-[11px] px-2"
+                        onClick={() => {
+                          alternarFechamentoMes(b.id, mesKey(sel));
+                          toast.success(
+                            b.isFechadoNoMes
+                              ? `Teto reativado para ${mesLabel(sel)}`
+                              : `Mês ${mesLabel(sel)} encerrado! Sobra de ${fmtBRL(b.restante)} desconsiderada do saldo.`
+                          );
+                        }}
+                      >
+                        {b.isFechadoNoMes ? "Reativar teto" : "Encerrar mês e ignorar sobra"}
+                      </Button>
+                    </div>
+                  )}
+
+                  {!sel && (b.mesesFechados ?? []).length > 0 && (
+                    <span className="text-[11px] text-muted-foreground">
+                      * Sobra ignorada em {(b.mesesFechados ?? []).length} mês(es) encerrado(s).
                     </span>
                   )}
-                  <span className="text-muted-foreground tabular-nums">
-                    {b.percentual.toFixed(1)}% do teto
-                  </span>
                 </div>
               </div>
             );

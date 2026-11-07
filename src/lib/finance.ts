@@ -115,35 +115,68 @@ export interface BudgetInput {
   categoria: string;
   subcategoria: string;
   valorMensal: number;
+  mesesFechados?: string[];
 }
 
 /**
  * Calcula o resumo financeiro de um período (mês ou todos) incorporando os budgets como
  * limite mínimo / teto projetado como já realizado.
+ * Permite desconsiderar a sobra do teto nos meses em que o usuário marcou como fechado/ignorado.
  */
 export function resumoComBudgets(
   movs: Movimento[],
   mesFiltro: string | null,
   budgets: BudgetInput[],
-  totalMeses = 1
+  mesesLista: string[] = []
 ) {
   const all = movs ?? [];
-  const list = mesFiltro ? all.filter((m) => mesKey(m.mes) === mesKey(mesFiltro)) : all;
   const base = resumoMes(all, mesFiltro);
 
-  const numMeses = mesFiltro ? 1 : Math.max(1, totalMeses);
   let adiantamentoBudget = 0;
 
-  budgets.forEach((b) => {
-    const tetoPeriodo = b.valorMensal * numMeses;
-    const gastoRealCategoria = list
-      .filter((m) => isSaida(m) && isProprio(m) && m.categoria === b.categoria && m.subcategoria === b.subcategoria)
-      .reduce((sum, m) => sum + Number(m.valor), 0);
+  if (mesFiltro) {
+    // Cálculo para um mês específico
+    const mesChave = mesKey(mesFiltro);
+    const sublist = all.filter((m) => mesKey(m.mes) === mesChave);
 
-    if (gastoRealCategoria < tetoPeriodo) {
-      adiantamentoBudget += tetoPeriodo - gastoRealCategoria;
-    }
-  });
+    budgets.forEach((b) => {
+      const fechado = b.mesesFechados?.includes(mesChave);
+      if (fechado) {
+        // Mês encerrado: considera apenas o gasto real, sem projetar a sobra
+        return;
+      }
+      const tetoPeriodo = b.valorMensal;
+      const gastoRealCategoria = sublist
+        .filter((m) => isSaida(m) && isProprio(m) && m.categoria === b.categoria && m.subcategoria === b.subcategoria)
+        .reduce((sum, m) => sum + Number(m.valor), 0);
+
+      if (gastoRealCategoria < tetoPeriodo) {
+        adiantamentoBudget += tetoPeriodo - gastoRealCategoria;
+      }
+    });
+  } else {
+    // Cálculo consolidado para todos os meses
+    const mesesParaCalcular = mesesLista.length > 0 ? mesesLista : Array.from(new Set(all.map((m) => m.mes.slice(0, 10))));
+
+    mesesParaCalcular.forEach((m) => {
+      const mesChave = mesKey(m);
+      const sublist = all.filter((mov) => mesKey(mov.mes) === mesChave);
+
+      budgets.forEach((b) => {
+        const fechado = b.mesesFechados?.includes(mesChave);
+        if (fechado) return; // Se fechado neste mês específico, não projeta a sobra
+
+        const tetoPeriodo = b.valorMensal;
+        const gastoRealCategoria = sublist
+          .filter((mov) => isSaida(mov) && isProprio(mov) && mov.categoria === b.categoria && mov.subcategoria === b.subcategoria)
+          .reduce((sum, mov) => sum + Number(mov.valor), 0);
+
+        if (gastoRealCategoria < tetoPeriodo) {
+          adiantamentoBudget += tetoPeriodo - gastoRealCategoria;
+        }
+      });
+    });
+  }
 
   const saidasProjetadas = base.saidasProprias + adiantamentoBudget;
   const saldoProjetado = base.entradas - saidasProjetadas;

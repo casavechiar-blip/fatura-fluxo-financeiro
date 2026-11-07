@@ -35,7 +35,7 @@ function Painel() {
     const all = movs ?? [];
     const list = sel ? all.filter((m) => mesKey(m.mes) === mesKey(sel)) : all;
     const mensal = meses.map((m) => {
-      const r = resumoComBudgets(all, m, budgets, 1);
+      const r = resumoComBudgets(all, m, budgets, [m]);
       return { mes: mesLabel(m), Entradas: r.entradas, Saídas: r.saidasProprias, Terceiros: r.terceiros, Saldo: r.saldo };
     });
     const agg = (key: (x: (typeof list)[number]) => string, filtro: (x: (typeof list)[number]) => boolean) => {
@@ -44,7 +44,7 @@ function Painel() {
       return [...map].map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
     };
     return {
-      resumo: resumoComBudgets(all, sel, budgets, meses.length),
+      resumo: resumoComBudgets(all, sel, budgets, meses),
       mensal,
       categorias: agg((x) => catLabel(x.categoria), (x) => isSaida(x) && isProprio(x)),
       cartoes: agg((x) => x.forma_pgto ?? "—", (x) => isSaida(x) && !!x.forma_pgto),

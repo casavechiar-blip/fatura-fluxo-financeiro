@@ -5,6 +5,7 @@ export interface BudgetConfig {
   categoria: string;
   subcategoria: string;
   valorMensal: number;
+  mesesFechados?: string[]; // lista de meses no formato "AAAA-MM" onde a sobra do teto foi encerrada / ignorada
 }
 
 const STORAGE_KEY = "financas_budgets_config";
@@ -15,6 +16,7 @@ const DEFAULT_BUDGETS: BudgetConfig[] = [
     categoria: "Alimentação",
     subcategoria: "Mercado",
     valorMensal: 2000,
+    mesesFechados: [],
   },
 ];
 
@@ -62,9 +64,26 @@ export function useBudgets() {
     setBudgets((prev) => prev.filter((b) => b.id !== id));
   };
 
+  const alternarFechamentoMes = (budgetId: string, mesChave: string) => {
+    setBudgets((prev) =>
+      prev.map((b) => {
+        if (b.id !== budgetId) return b;
+        const fechados = b.mesesFechados ?? [];
+        const isFechado = fechados.includes(mesChave);
+        return {
+          ...b,
+          mesesFechados: isFechado
+            ? fechados.filter((m) => m !== mesChave)
+            : [...fechados, mesChave],
+        };
+      })
+    );
+  };
+
   return {
     budgets,
     salvarBudget,
     excluirBudget,
+    alternarFechamentoMes,
   };
 }
