@@ -110,3 +110,49 @@ export function resumoMes(movs: Movimento[], mes: string | null) {
   }
   return { entradas, saidasProprias, terceiros, pago, previsto, saldo: entradas - saidasProprias, count: list.length };
 }
+
+export interface BudgetInput {
+  categoria: string;
+  subcategoria: string;
+  valorMensal: number;
+}
+
+/**
+ * Calcula o resumo financeiro de um período (mês ou todos) incorporando os budgets como
+ * limite mínimo / teto projetado como já realizado.
+ */
+export function resumoComBudgets(
+  movs: Movimento[],
+  mesFiltro: string | null,
+  budgets: BudgetInput[],
+  totalMeses = 1
+) {
+  const all = movs ?? [];
+  const list = mesFiltro ? all.filter((m) => mesKey(m.mes) === mesKey(mesFiltro)) : all;
+  const base = resumoMes(all, mesFiltro);
+
+  const numMeses = mesFiltro ? 1 : Math.max(1, totalMeses);
+  let adiantamentoBudget = 0;
+
+  budgets.forEach((b) => {
+    const tetoPeriodo = b.valorMensal * numMeses;
+    const gastoRealCategoria = list
+      .filter((m) => isSaida(m) && isProprio(m) && m.categoria === b.categoria && m.subcategoria === b.subcategoria)
+      .reduce((sum, m) => sum + Number(m.valor), 0);
+
+    if (gastoRealCategoria < tetoPeriodo) {
+      adiantamentoBudget += tetoPeriodo - gastoRealCategoria;
+    }
+  });
+
+  const saidasProjetadas = base.saidasProprias + adiantamentoBudget;
+  const saldoProjetado = base.entradas - saidasProjetadas;
+
+  return {
+    ...base,
+    saidasProprias: saidasProjetadas,
+    saidasReais: base.saidasProprias,
+    saldo: saldoProjetado,
+    adiantamentoBudget,
+  };
+}

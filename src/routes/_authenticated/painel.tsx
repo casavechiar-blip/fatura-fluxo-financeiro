@@ -4,7 +4,8 @@ import { ArrowDownRight, ArrowUpRight, PiggyBank, Users } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Cell, Legend, Line, ComposedChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useMovimentos } from "@/hooks/use-finance";
 import { useGlobalFilters } from "@/hooks/use-global-filters";
-import { catLabel, fmtBRL, fmtCompact, isProprio, isSaida, mesKey, mesLabel, resumoMes } from "@/lib/finance";
+import { useBudgets } from "@/hooks/use-budgets";
+import { catLabel, fmtBRL, fmtCompact, isProprio, isSaida, mesKey, mesLabel, resumoComBudgets, resumoMes } from "@/lib/finance";
 import { CHART_COLORS, Kpi, MesSelect, Panel } from "@/components/finance/ui";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -25,6 +26,7 @@ const tooltipStyle = { background: "var(--popover)", border: "1px solid var(--bo
 function Painel() {
   const { data: movs, isLoading } = useMovimentos();
   const { filtros, setMes } = useGlobalFilters();
+  const { budgets } = useBudgets();
   const meses = useMemo(() => Array.from(new Set((movs ?? []).map((m) => m.mes.slice(0, 10)))).sort(), [movs]);
   const mes = filtros.mes;
   const sel = mes === "todos" ? null : mes;
@@ -32,21 +34,24 @@ function Painel() {
   const dados = useMemo(() => {
     const all = movs ?? [];
     const list = sel ? all.filter((m) => mesKey(m.mes) === mesKey(sel)) : all;
-    const mensal = meses.map((m) => { const r = resumoMes(all, m); return { mes: mesLabel(m), Entradas: r.entradas, Saídas: r.saidasProprias, Terceiros: r.terceiros, Saldo: r.saldo }; });
+    const mensal = meses.map((m) => {
+      const r = resumoComBudgets(all, m, budgets, 1);
+      return { mes: mesLabel(m), Entradas: r.entradas, Saídas: r.saidasProprias, Terceiros: r.terceiros, Saldo: r.saldo };
+    });
     const agg = (key: (x: (typeof list)[number]) => string, filtro: (x: (typeof list)[number]) => boolean) => {
       const map = new Map<string, number>();
       list.filter(filtro).forEach((x) => map.set(key(x), (map.get(key(x)) ?? 0) + Number(x.valor)));
       return [...map].map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
     };
     return {
-      resumo: resumoMes(all, sel),
+      resumo: resumoComBudgets(all, sel, budgets, meses.length),
       mensal,
       categorias: agg((x) => catLabel(x.categoria), (x) => isSaida(x) && isProprio(x)),
       cartoes: agg((x) => x.forma_pgto ?? "—", (x) => isSaida(x) && !!x.forma_pgto),
       terceiros: agg((x) => x.responsavel ?? "—", (x) => isSaida(x) && !isProprio(x)),
       top: list.filter(isSaida).sort((a, b) => Number(b.valor) - Number(a.valor)).slice(0, 6),
     };
-  }, [movs, meses, sel]);
+  }, [movs, meses, sel, budgets]);
 
   if (isLoading) return <div className="grid gap-4 md:grid-cols-4">{Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-32" />)}</div>;
 
@@ -56,14 +61,22 @@ function Painel() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-3xl font-semibold">Painel financeiro</h1>
-          <p className="text-sm text-muted-foreground">{r.count} lançamentos · {sel ? mesLabel(sel) : "todos os meses"}</p>
+          <p className="text-sm text-muted-foreground">
+            {r.count} lançamentos · {sel ? mesLabel(sel) : "todos os meses"} · Projeção com tetos de budget
+          </p>
         </div>
         <MesSelect meses={meses} value={mes} onChange={setMes} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Kpi label="Entradas" value={fmtBRL(r.entradas)} icon={ArrowUpRight} tone="income" />
-        <Kpi label="Saídas próprias" value={fmtBRL(r.saidasProprias)} icon={ArrowDownRight} tone="expense" hint={`Pago ${fmtBRL(r.pago)} · Previsto ${fmtBRL(r.previsto)}`} />
+        <Kpi
+          label="Saídas próprias"
+          value={fmtBRL(r.saidasProprias)}
+          icon={ArrowDownRight}
+          tone="expense"
+          hint={`Pago ${fmtBRL(r.pago)} · Previsto ${fmtBRL(r.previsto)}${r.adiantamentoBudget > 0 ? ` (+ ${fmtBRL(r.adiantamentoBudget)} teto)` : ""}`}
+        />
         <Kpi label="Saldo do período" value={fmtBRL(r.saldo)} icon={PiggyBank} tone="primary" />
         <Kpi label="Compras de terceiros" value={fmtBRL(r.terceiros)} icon={Users} tone="chart-3" hint="A receber de outras pessoas" />
       </div>

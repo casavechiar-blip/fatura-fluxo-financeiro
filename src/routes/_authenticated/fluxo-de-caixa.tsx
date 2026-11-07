@@ -35,7 +35,7 @@ import {
   isSaida,
   mesKey,
   mesLabel,
-  resumoMes,
+  resumoComBudgets,
 } from "@/lib/finance";
 import { Kpi, MesSelect, Panel } from "@/components/finance/ui";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -93,42 +93,9 @@ function FluxoDeCaixa() {
     const all = movs ?? [];
     const list = sel ? all.filter((m) => mesKey(m.mes) === mesKey(sel)) : all;
 
-    const calcularResumoComBudget = (mesFiltro: string | null) => {
-      const sublist = mesFiltro ? all.filter((m) => mesKey(m.mes) === mesKey(mesFiltro)) : all;
-      const baseResumo = resumoMes(all, mesFiltro);
-
-      // Calcular o gasto real por cada subcategoria configurada no budget
-      const numMeses = mesFiltro ? 1 : Math.max(1, meses.length);
-
-      let adiantamentoBudget = 0; // valor do teto que ainda não foi gasto no mês, mas deve ser considerado já realizado
-
-      budgets.forEach((b) => {
-        const tetoPeriodo = b.valorMensal * numMeses;
-        const gastoRealCategoria = sublist
-          .filter((m) => isSaida(m) && isProprio(m) && m.categoria === b.categoria && m.subcategoria === b.subcategoria)
-          .reduce((sum, m) => sum + Number(m.valor), 0);
-
-        if (gastoRealCategoria < tetoPeriodo) {
-          // Gasto menor que o budget: adiciona a diferença para projetar o teto total como realizado
-          adiantamentoBudget += (tetoPeriodo - gastoRealCategoria);
-        }
-      });
-
-      const saidasProjetadas = baseResumo.saidasProprias + adiantamentoBudget;
-      const saldoProjetado = baseResumo.entradas - saidasProjetadas;
-
-      return {
-        ...baseResumo,
-        saidasProprias: saidasProjetadas,
-        saidasReais: baseResumo.saidasProprias,
-        saldo: saldoProjetado,
-        adiantamentoBudget,
-      };
-    };
-
     let acumulador = 0;
     const mensal = meses.map((m) => {
-      const r = calcularResumoComBudget(m);
+      const r = resumoComBudgets(all, m, budgets, 1);
       acumulador += r.saldo;
       return {
         mes: mesLabel(m),
@@ -142,7 +109,7 @@ function FluxoDeCaixa() {
 
     let saldoAcumuladoSelecionado = 0;
     for (const m of meses) {
-      const r = calcularResumoComBudget(m);
+      const r = resumoComBudgets(all, m, budgets, 1);
       saldoAcumuladoSelecionado += r.saldo;
       if (sel && mesKey(m) === mesKey(sel)) break;
     }
@@ -172,7 +139,7 @@ function FluxoDeCaixa() {
     });
 
     return {
-      resumo: calcularResumoComBudget(sel),
+      resumo: resumoComBudgets(all, sel, budgets, meses.length),
       saldoAcumulado: sel ? saldoAcumuladoSelecionado : acumulador,
       mensal,
       statusBudgets,
