@@ -5,6 +5,7 @@ export interface FilterState {
   forma: string; // "todas" ou nome do cartão/forma
   responsavel: string; // "todos" ou nome do responsável
   busca: string;
+  valoresOcultos: boolean;
 }
 
 const STORAGE_KEY = "financas_filtros_globais";
@@ -14,6 +15,7 @@ const defaultFilters: FilterState = {
   forma: "todas",
   responsavel: "todos",
   busca: "",
+  valoresOcultos: false,
 };
 
 function carregarFiltrosIniciais(): FilterState {
@@ -32,6 +34,7 @@ interface FilterContextType {
   setForma: (forma: string) => void;
   setResponsavel: (responsavel: string) => void;
   setBusca: (busca: string) => void;
+  setValoresOcultos: (ocultos: boolean | ((prev: boolean) => boolean)) => void;
   limparFiltros: () => void;
 }
 
@@ -52,10 +55,26 @@ export function FilterProvider({ children }: { children: React.ReactNode }) {
   const setForma = (forma: string) => setFiltros((prev) => ({ ...prev, forma }));
   const setResponsavel = (responsavel: string) => setFiltros((prev) => ({ ...prev, responsavel }));
   const setBusca = (busca: string) => setFiltros((prev) => ({ ...prev, busca }));
+  const setValoresOcultos = (action: boolean | ((prev: boolean) => boolean)) => {
+    setFiltros((prev) => ({
+      ...prev,
+      valoresOcultos: typeof action === "function" ? action(prev.valoresOcultos) : action,
+    }));
+  };
   const limparFiltros = () => setFiltros(defaultFilters);
 
   return (
-    <FilterContext.Provider value={{ filtros, setMes, setForma, setResponsavel, setBusca, limparFiltros }}>
+    <FilterContext.Provider
+      value={{
+        filtros,
+        setMes,
+        setForma,
+        setResponsavel,
+        setBusca,
+        setValoresOcultos,
+        limparFiltros,
+      }}
+    >
       {children}
     </FilterContext.Provider>
   );

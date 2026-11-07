@@ -1,8 +1,8 @@
-import { useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import { Eye, EyeOff } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { mesLabel } from "@/lib/finance";
+import { useGlobalFilters } from "@/hooks/use-global-filters";
 
 export function Kpi({
   label,
@@ -19,7 +19,8 @@ export function Kpi({
   hint?: string;
   allowHide?: boolean;
 }) {
-  const [oculto, setOculto] = useState(false);
+  const { filtros, setValoresOcultos } = useGlobalFilters();
+  const oculto = filtros.valoresOcultos;
   const toneCls = {
     primary: "text-primary bg-primary/10",
     income: "text-income bg-income/10",
@@ -35,10 +36,10 @@ export function Kpi({
           {allowHide && (
             <button
               type="button"
-              onClick={() => setOculto(!oculto)}
+              onClick={() => setValoresOcultos((prev) => !prev)}
               className="text-muted-foreground/70 hover:text-foreground transition-colors p-0.5 rounded focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              title={oculto ? "Mostrar valor" : "Ocultar valor"}
-              aria-label={oculto ? `Mostrar valor de ${label}` : `Ocultar valor de ${label}`}
+              title={oculto ? "Mostrar valores" : "Ocultar valores"}
+              aria-label={oculto ? `Mostrar valores` : `Ocultar valores`}
             >
               {oculto ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
             </button>
