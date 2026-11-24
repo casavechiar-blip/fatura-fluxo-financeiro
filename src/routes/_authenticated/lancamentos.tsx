@@ -28,22 +28,30 @@ export const Route = createFileRoute("/_authenticated/lancamentos")({
 function Lancamentos() {
   const { data: movs = [] } = useMovimentos();
   const excluir = useExcluirMovimento();
-  const { filtros, setMes, setForma, setResponsavel, setBusca } = useGlobalFilters();
+  const { filtros, setMes, setForma, setResponsavel, setTipoMovimento, setBusca } = useGlobalFilters();
   const mes = filtros.mes;
   const forma = filtros.forma;
   const responsavel = filtros.responsavel;
+  const tipoMovimento = filtros.tipoMovimento;
   const q = filtros.busca;
   const [editar, setEditar] = useState<Movimento | null>(null);
   const meses = useMemo(() => Array.from(new Set(movs.map((m) => m.mes))).sort(), [movs]);
   const formas = useMemo(() => Array.from(new Set(movs.map((m) => m.forma_pgto).filter(Boolean) as string[])).sort(), [movs]);
   const responsaveis = useMemo(() => Array.from(new Set(movs.map((m) => m.responsavel).filter(Boolean) as string[])).sort(), [movs]);
 
-  const lista = movs.filter((m) =>
-    (mes === "todos" || mesKey(m.mes) === mesKey(mes)) &&
-    (forma === "todas" || m.forma_pgto === forma) &&
-    (responsavel === "todos" || m.responsavel === responsavel) &&
-    (!q || [m.detalhamento, m.subcategoria, m.categoria, m.responsavel].join(" ").toLowerCase().includes(q.toLowerCase())),
-  );
+  const lista = movs.filter((m) => {
+    const matchMes = mes === "todos" || mesKey(m.mes) === mesKey(mes);
+    const matchForma = forma === "todas" || m.forma_pgto === forma;
+    const matchResp = responsavel === "todos" || m.responsavel === responsavel;
+    const matchTipo =
+      tipoMovimento === "todos" ||
+      (tipoMovimento === "receitas" && !isSaida(m)) ||
+      (tipoMovimento === "despesas" && isSaida(m));
+    const matchBusca =
+      !q || [m.detalhamento, m.subcategoria, m.categoria, m.responsavel].join(" ").toLowerCase().includes(q.toLowerCase());
+
+    return matchMes && matchForma && matchResp && matchTipo && matchBusca;
+  });
   const total = lista.reduce((s, m) => s + (isSaida(m) ? -1 : 1) * Number(m.valor), 0);
 
   return (
@@ -61,6 +69,14 @@ function Lancamentos() {
               <Input className="w-48 pl-8" placeholder="Buscar…" value={q} onChange={(e) => setBusca(e.target.value)} />
             </div>
             <MesSelect meses={meses} value={mes} onChange={setMes} />
+            <Select value={tipoMovimento} onValueChange={(v: "todos" | "receitas" | "despesas") => setTipoMovimento(v)}>
+              <SelectTrigger className="w-36"><SelectValue placeholder="Tipo" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos os tipos</SelectItem>
+                <SelectItem value="receitas">Receitas</SelectItem>
+                <SelectItem value="despesas">Despesas</SelectItem>
+              </SelectContent>
+            </Select>
             <Select value={forma} onValueChange={setForma}>
               <SelectTrigger className="w-48"><SelectValue placeholder="Forma de pagamento" /></SelectTrigger>
               <SelectContent>

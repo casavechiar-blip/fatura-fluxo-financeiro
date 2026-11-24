@@ -4,6 +4,7 @@ export interface FilterState {
   mes: string; // "todos" ou "AAAA-MM-01"
   forma: string; // "todas" ou nome do cartão/forma
   responsavel: string; // "todos" ou nome do responsável
+  tipoMovimento: "todos" | "receitas" | "despesas";
   busca: string;
   valoresOcultos: boolean;
 }
@@ -14,6 +15,7 @@ const defaultFilters: FilterState = {
   mes: "todos",
   forma: "todas",
   responsavel: "todos",
+  tipoMovimento: "todos",
   busca: "",
   valoresOcultos: false,
 };
@@ -33,6 +35,7 @@ interface FilterContextType {
   setMes: (mes: string) => void;
   setForma: (forma: string) => void;
   setResponsavel: (responsavel: string) => void;
+  setTipoMovimento: (tipo: "todos" | "receitas" | "despesas") => void;
   setBusca: (busca: string) => void;
   setValoresOcultos: (ocultos: boolean | ((prev: boolean) => boolean)) => void;
   limparFiltros: () => void;
@@ -54,6 +57,8 @@ export function FilterProvider({ children }: { children: React.ReactNode }) {
   const setMes = (mes: string) => setFiltros((prev) => ({ ...prev, mes }));
   const setForma = (forma: string) => setFiltros((prev) => ({ ...prev, forma }));
   const setResponsavel = (responsavel: string) => setFiltros((prev) => ({ ...prev, responsavel }));
+  const setTipoMovimento = (tipoMovimento: "todos" | "receitas" | "despesas") =>
+    setFiltros((prev) => ({ ...prev, tipoMovimento }));
   const setBusca = (busca: string) => setFiltros((prev) => ({ ...prev, busca }));
   const setValoresOcultos = (action: boolean | ((prev: boolean) => boolean)) => {
     setFiltros((prev) => ({
@@ -70,6 +75,7 @@ export function FilterProvider({ children }: { children: React.ReactNode }) {
         setMes,
         setForma,
         setResponsavel,
+        setTipoMovimento,
         setBusca,
         setValoresOcultos,
         limparFiltros,
